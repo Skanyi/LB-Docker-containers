@@ -1,7 +1,8 @@
 Task Flow
 Task 1:
 The application itself
-`from flask import Flask
+``` python
+from flask import Flask
  app = Flask(__name__)
 
  @app.route('/')
@@ -9,15 +10,18 @@ The application itself
      return 'Hello, World'
 
  if __name__ == '__main__':
-     app.run(debug=True, host='0.0.0.0')`
+     app.run(debug=True, host='0.0.0.0')
+```
 
 Start by creating the Dockerfile
-`FROM python:3.7.0-alpine3.8
- COPY . /app
- WORKDIR /app
- RUN pip install flask
- ENTRYPOINT ["python3"]
- CMD ["main.py"]`
+``` Dockerfile
+FROM python:3.7.0-alpine3.8
+COPY . /app
+WORKDIR /app
+RUN pip install flask
+ENTRYPOINT ["python3"]
+CMD ["main.py"]`
+```
 
 Build the image
 `docker build -t hello .`
@@ -32,7 +36,8 @@ Read the env varible and substitute it
 `docker run -d -p 5000:5000 -m 20m --restart always -e GREET="andela" hello`
 
 I updated the python app to this
-`import os
+``` python
+import os
  from flask import Flask
  app = Flask(__name__)
 
@@ -42,6 +47,7 @@ I updated the python app to this
 
  if __name__ == '__main__':
      app.run(debug=True, host='0.0.0.0')`
+```
 
 From there, you can pass any value to the GREET variable. 
 
@@ -56,11 +62,14 @@ Task 4:
 Setup Load balance using round robin
 
 Start by creating a haproxy image 
-`FROM haproxy:1.7
+``` Dockerfile
+FROM haproxy:1.7
 COPY haproxy.cfg /usr/local/etc/haproxy/haproxy.cfg`
+```
 
 Then create a haproxy.cfg that loadbalance the servers
-`global
+``` yml
+global
         debug
 
 defaults
@@ -89,10 +98,12 @@ listen stats
         stats enable
         stats uri /stats
         stats realm Strictly\ Private
-        stats auth kanyi:haproxypass`
+        stats auth kanyi:haproxypass
+```
 
 Then create a docker-compose.yml file to launch all the 3 servers at the same time
-`version: '3'
+``` yml
+version: '3'
 
 services:
   app_one:
@@ -140,4 +151,4 @@ networks:
             driver: default
             config:
                 - subnet: ${NETWORK_SUBNET}`
-
+```
