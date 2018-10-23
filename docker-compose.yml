@@ -1,0 +1,48 @@
+version: '3'
+
+services:
+  app_one:
+    image: hello
+    ports:
+      - 5001:5000
+    env_file:
+        - .env
+    networks:
+        public_net:
+            ipv4_address: "${APP_ONE_IP}"
+    environment:
+      - GREET=world
+    container_name: 'app_one'
+
+  app_two:
+    image: hello
+    ports:
+      - 5002:5000
+    env_file:
+        - .env
+    networks:
+        public_net:
+            ipv4_address: "${APP_TWO_IP}"
+    environment:
+       - GREET=andela
+    container_name: 'app_two'
+
+  haproxy:
+    image: haproxy-svc
+    ports:
+      - 5000:5000
+      - 9201:9201
+    env_file:
+        - .env
+    networks:
+            public_net:
+                ipv4_address: "${HAPROXY_IP}"
+    container_name: 'haproxy'
+
+networks:
+    public_net:
+        driver: bridge
+        ipam:
+            driver: default
+            config:
+                - subnet: ${NETWORK_SUBNET}
